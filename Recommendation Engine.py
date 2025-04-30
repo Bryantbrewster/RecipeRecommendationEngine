@@ -36,7 +36,6 @@ print()
 print("Welcome to the recipe recommender! Providing recipe ideas so you don't have to even think about what to make for dinner.")
 print()
 new_vs_returning = input("Are you a new or returning user? (new/returning) ")
-# print(“\n” * 1000)
 os.system("cls")
 print()
 if new_vs_returning.lower() == 'new':
@@ -106,12 +105,12 @@ if new_vs_returning.lower() == 'new':
     print()
     print()
     favorite_cuisine_onboarding_recipes = onboarding_recipes_df[onboarding_recipes_df['Cuisine'].isin(favorite_cuisines)]
-    # favorite_cuisine_onboarding_recipes.show()
 
+    # Creates a column with user_id for all rows, keeps the recipe_id from filetered DataFrame, and renames the average_rating column
     simulated_reviews_df = favorite_cuisine_onboarding_recipes.select(
-        lit(user_id).alias("user_id"),  # Creates a column with the user_id for all rows
-        "recipe_id",  # Keeps the recipe_id from the filtered DataFrame
-        col("Sum of average_rating").cast(FloatType()).alias("rating")  # Renames the average_rating column to 'rating'
+        lit(user_id).alias("user_id"),  
+        "recipe_id", 
+        col("Sum of average_rating").cast(FloatType()).alias("rating")  
     )
 
 
