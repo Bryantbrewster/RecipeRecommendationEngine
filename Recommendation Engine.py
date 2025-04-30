@@ -123,7 +123,7 @@ if new_vs_returning.lower() == 'new':
     path_to_directory = "datasets/interactions"
     interactions_df = spark.read.parquet(path_to_directory)
 
-    '''Testing area for filtered versions of the dataframe for training'''
+    
     # Group by 'recipe_id' and count the number of reviews
     recipe_review_counts = interactions_df.groupBy("recipe_id").agg(count("rating").alias("num_reviews"))
 
@@ -165,8 +165,7 @@ if new_vs_returning.lower() == 'new':
     sorted_recs = specific_user_recommendations.orderBy("rating", ascending=False)
     # Read in master recipe file
     master_recipe_df = spark.read.csv("datasets/master-tables/recipes_master.csv", header=True, inferSchema=True)
-    # filtered_csv_df = master_recipe_df.filter((master_recipe_df.time_to_cook == '15-minutes-or-less') |
-    #                                           (master_recipe_df.time_to_cook == '30-minutes-or-less'))
+
 
     joined_df = sorted_recs.join(master_recipe_df, "recipe_id")
     # Select columns I want to show
@@ -257,8 +256,6 @@ if new_vs_returning.lower() == 'returning':
     path_to_directory = "datasets/interactions"
     interactions_df = spark.read.parquet(path_to_directory)
 
-
-    '''Testing area for filtered versions of the dataframe for training'''
     # Group by 'recipe_id' and count the number of reviews
     recipe_review_counts = interactions_df.groupBy("recipe_id").agg(count("rating").alias("num_reviews"))
 
@@ -271,20 +268,18 @@ if new_vs_returning.lower() == 'returning':
 
 
     # Now, 'filtered_interactions_df' contains only the interactions for recipes with 5 or more reviews
-    '''Fitting a basic model'''
-    '''Split our data into train/test'''
     (training_data, test_data) = filtered_interactions_df.randomSplit([0.8, 0.2])
 
-    '''Build the ALS model'''
+    # Build the ALS model
     als = ALS(userCol="user_id", itemCol="recipe_id", ratingCol="rating",
               rank=5, maxIter=20, regParam=0.15, nonnegative=True,
               coldStartStrategy="drop", implicitPrefs=False)
 
-    '''Fit the model'''
+    # Fit the model
     model = als.fit(training_data)
     recommendations = model.recommendForAllUsers(20)
-    # Create a DataFrame containing just the specified user_id
 
+    # Create a DataFrame containing just the specified user_id
     exploded_recs = recommendations.select(recommendations.user_id,
                                            explode(recommendations.recommendations).alias("recommendation"))
 
